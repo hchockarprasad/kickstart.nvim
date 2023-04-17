@@ -88,9 +88,33 @@ require('lazy').setup({
 
       -- Additional lua configuration, makes nvim stuff amazing!
       'folke/neodev.nvim',
+      'simrat39/rust-tools.nvim'
     },
   },
+  {
+    'windwp/nvim-autopairs',
+    config = function()
+      local npairs = require("nvim-autopairs")
+      local Rule = require('nvim-autopairs.rule')
 
+      npairs.setup({
+        check_ts = true,
+        ts_config = {
+          rust = {}
+        }
+      })
+      local ts_conds = require('nvim-autopairs.ts-conds')
+
+
+      -- press % => %% only while inside a comment or string
+      npairs.add_rules({
+        Rule("%", "%", "lua")
+        :with_pair(ts_conds.is_ts_node({'string','comment'})),
+        Rule("$", "$", "lua")
+        :with_pair(ts_conds.is_not_ts_node({'function'}))
+      })
+    end
+  },
   { -- Autocompletion
     'hrsh7th/nvim-cmp',
     dependencies = { 'hrsh7th/cmp-nvim-lsp', 'L3MON4D3/LuaSnip', 'saadparwaiz1/cmp_luasnip' },
@@ -233,6 +257,9 @@ vim.o.termguicolors = true
 -- Keymaps for better default experience
 -- See `:help vim.keymap.set()`
 vim.keymap.set({ 'n', 'v' }, '<Space>', '<Nop>', { silent = true })
+
+-- Map Ctrl + k for Esc.
+vim.keymap.set({ 'n', 'i', 'v', 's', 'x', 'c', 'o', 'l', 't' }, '<C-k>', '<Esc>', {noremap = true})
 
 -- Remap for dealing with word wrap
 vim.keymap.set('n', 'k', "v:count == 0 ? 'gk' : 'k'", { expr = true, silent = true })
@@ -408,9 +435,17 @@ local servers = {
   -- clangd = {},
   -- gopls = {},
   -- pyright = {},
-  -- rust_analyzer = {},
-  -- tsserver = {},
-
+  html = {},
+  cssls = {},
+  rust_analyzer = {
+    ["rust-analyzer"] = {
+      check = {
+        command = "clippy"
+      }
+    }
+  },
+  angularls = {},
+  tsserver = {},
   lua_ls = {
     Lua = {
       workspace = { checkThirdParty = false },
