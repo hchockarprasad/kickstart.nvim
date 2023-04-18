@@ -437,13 +437,6 @@ local servers = {
   -- pyright = {},
   html = {},
   cssls = {},
-  rust_analyzer = {
-    ["rust-analyzer"] = {
-      check = {
-        command = "clippy"
-      }
-    }
-  },
   angularls = {},
   tsserver = {},
   lua_ls = {
@@ -476,6 +469,20 @@ mason_lspconfig.setup_handlers {
       settings = servers[server_name],
     }
   end,
+  ["rust_analyzer"] = function ()
+    require("rust-tools").setup({
+      server = {
+        on_attach = on_attach,
+        settings = {
+          ["rust-analyzer"] = {
+            check = {
+              command = "clippy"
+            }
+          }
+        }
+      }
+    })
+  end
 }
 
 -- nvim-cmp setup
